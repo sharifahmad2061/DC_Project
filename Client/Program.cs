@@ -3,27 +3,41 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
+using System.Collections.Generic;
 
 namespace Client
 {
     class Program
     {
-        private static IPAddress ActiveIp()
+        //shared for received data
+        private Queue<String> queue;
+
+        //ctor
+        Program()
         {
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && ni.OperationalStatus == OperationalStatus.Up)
-                {
-                    foreach (UnicastIPAddressInformation unicastIPAddressInformation in ni.GetIPProperties().UnicastAddresses)
-                    {
-                        if (unicastIPAddressInformation.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                        {
-                            return unicastIPAddressInformation.Address;
-                        }
-                    }
-                }
-            }
-            return null;
+            queue = new Queue<string>();
+        }
+        
+        //private static IPAddress ActiveIp()
+        //{
+        //    foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+        //    {
+        //        if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && ni.OperationalStatus == OperationalStatus.Up)
+        //        {
+        //            foreach (UnicastIPAddressInformation unicastIPAddressInformation in ni.GetIPProperties().UnicastAddresses)
+        //            {
+        //                if (unicastIPAddressInformation.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+        //                {
+        //                    return unicastIPAddressInformation.Address;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return null;
+        //}
+        static void receive(UdpClient udpClient)
+        {
+
         }
         static void Main(string[] args)
         {
