@@ -4,20 +4,29 @@ using System.Net;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Collections.Generic;
-
+using System.Threading;
 namespace Client
 {
     class Program
     {
         //shared for received data
-        private Queue<String> queue;
-
+        private static Queue<String> receive_queue;
+        private static Queue<String> send_queue;
+        private static Thread receiveThread;
+        private static UdpClient sender;
         //ctor
         Program()
         {
-            queue = new Queue<string>();
+            receive_queue = new Queue<string>();
+            send_queue = new Queue<string>();
+            sender = new UdpClient();
+            sender.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
+            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 2222);
+            sender.Connect(iPEndPoint);
+            IPAddress iPAddress = IPAddress.Parse("232.0.0.2");
+            sender.JoinMulticastGroup(iPAddress);
         }
-        
+
         //private static IPAddress ActiveIp()
         //{
         //    foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
@@ -35,23 +44,34 @@ namespace Client
         //    }
         //    return null;
         //}
-        static void receive(UdpClient udpClient)
+        public static void receive()
         {
+            while (true)
+            {
+                IPEndPoint iPEndPoint = (IPEndPoint)sender.Client.LocalEndPoint;
+                Byte[] data = sender.Receive(ref iPEndPoint);
+                String strData = Encoding.Unicode.GetString(data);
+                receive_queue.Enqueue(strData);
+            }
+        }
 
+        public static void send()
+        {
+            while (true)
+            {
+                if (send_queue.Count >= 1)
+                {
+
+                }
+            }
         }
         static void Main(string[] args)
         {
-            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any,2222);
-            UdpClient udpClient = new UdpClient(iPEndPoint);
-            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket,SocketOptionName.MulticastInterface,1);
-            IPAddress iPAddress = IPAddress.Parse("232.0.0.2");
-            udpClient.JoinMulticastGroup(iPAddress);
-            
-            Console.WriteLine("Listening this will never quit so you will need to ctrl-c it");
+            //receive thread
+            receiveThread = new Thread(receive);
+            receiveThread.Start();
 
-            Byte[] msg = udpClient.Receive(ref iPEndPoint);
-            Console.WriteLine(Encoding.Unicode.GetString(msg));
-
+            //send thread
             while (true)
             {
                 Byte[] data = udpClient.Receive(ref iPEndPoint);
