@@ -13,18 +13,24 @@ namespace Client
         private static Queue<String> receive_queue;
         private static Queue<String> send_queue;
         private static Thread receiveThread;
-        private static UdpClient sender;
+        private static UnicodeEncoding unicodeEncoding;
+        private static UdpClient receiver_sock;
+        private static UdpClient sender_sock;
         //ctor
         Program()
         {
             receive_queue = new Queue<string>();
             send_queue = new Queue<string>();
-            sender = new UdpClient();
-            sender.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
+
+            unicodeEncoding = new UnicodeEncoding();
+
+            receiver_sock = new UdpClient();
+            sender_sock = new UdpClient();
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 2222);
-            sender.Connect(iPEndPoint);
+            receiver_sock.Connect(iPEndPoint);
+            receiver_sock.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
             IPAddress iPAddress = IPAddress.Parse("232.0.0.2");
-            sender.JoinMulticastGroup(iPAddress);
+            receiver_sock.JoinMulticastGroup(iPAddress);
         }
 
         //private static IPAddress ActiveIp()
@@ -48,9 +54,9 @@ namespace Client
         {
             while (true)
             {
-                IPEndPoint iPEndPoint = (IPEndPoint)sender.Client.LocalEndPoint;
-                Byte[] data = sender.Receive(ref iPEndPoint);
-                String strData = Encoding.Unicode.GetString(data);
+                IPEndPoint iPEndPoint = (IPEndPoint)receiver_sock.Client.LocalEndPoint;
+                Byte[] data = receiver_sock.Receive(ref iPEndPoint);
+                String strData = unicodeEncoding.GetString(data);
                 receive_queue.Enqueue(strData);
             }
         }
