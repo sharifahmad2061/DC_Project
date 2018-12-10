@@ -28,6 +28,20 @@ namespace Downloader
             int contentLength = 12345; //get contentLengthFirst
             string fileName = ""; //get fileName
 
+            try
+            {
+                String workingDir = @"D:\Code\Node\DCProject\Downloader";
+                String command = @"node " + workingDir + @"\utils\FileDetails.js " + "\"" + Url + "\"";
+                String output = ExecShell(command);
+
+                fileName = output.Split(';')[0];
+                contentLength = Convert.ToInt32(output.Split(';')[1]);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
             return Tuple.Create(fileName, DistributeInteger(contentLength, NoOfParts));
         }
 
@@ -48,7 +62,7 @@ namespace Downloader
         {
             try
             {
-            
+
             }
             catch (Exception e)
             {
@@ -80,7 +94,8 @@ namespace Downloader
             }
         }
 
-        private static string ExecShell(string Command) {
+        private static string ExecShell(string Command)
+        {
 
             //String workingDir = @"D:\Code\Node\DCProject\Downloader";
             //String command = @"/C node " + workingDir + @"\utils\IsWebsiteSupported_.js " + "\"http://file-examples.com/wp-content/uploads/2017/02/zip_10MB.zip\"";
