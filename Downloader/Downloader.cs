@@ -8,7 +8,22 @@ namespace Downloader
 {
     public class Downloader
     {
-        string DownloadFile(int StartByte, int EndByte)
+        public static bool IsWebsiteSupported(string Url)
+        {
+            //check if the website is supported!
+
+            return true;
+        }
+
+        public static Tuple<String, IEnumerable<int>> GetNameAndPartSizes(string Url, int NoOfParts)
+        {
+            int contentLength = 12345; //get contentLengthFirst
+            string fileName = ""; //get fileName
+
+            return Tuple.Create(fileName, DistributeInteger(contentLength, NoOfParts));
+        }
+
+        public static string DownloadFile(int StartByte, int EndByte)
         {
             try
             {
@@ -21,7 +36,7 @@ namespace Downloader
             return "";
         }
 
-        string JoinParts(String[] FilePartsPathsInSortedArray)
+        public static string JoinParts(String[] FilePartsPathsInSortedArray)
         {
             try
             {
@@ -32,6 +47,29 @@ namespace Downloader
                 throw;
             }
             return "";
+        }
+
+        private static IEnumerable<int> DistributeInteger(int total, int divider)
+        {
+            //https://dotnetcodr.com/2015/11/03/divide-an-integer-into-groups-with-c/
+
+            if (divider == 0)
+            {
+                yield return 0;
+            }
+            else
+            {
+                int rest = total % divider;
+                double result = total / (double)divider;
+
+                for (int i = 0; i < divider; i++)
+                {
+                    if (rest-- > 0)
+                        yield return (int)Math.Ceiling(result);
+                    else
+                        yield return (int)Math.Floor(result);
+                }
+            }
         }
     }
 }
