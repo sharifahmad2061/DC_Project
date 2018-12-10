@@ -3,16 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using System.IO;
 
 namespace Downloader
 {
-    public class Downloader
+    public static class Downloader
     {
         public static bool IsWebsiteSupported(string Url)
         {
             //check if the website is supported!
+            //D:\Code\Node\DCProject\Downloader\utils\IsWebsiteSupported_.js
+            //http://file-examples.com/wp-content/uploads/2017/02/zip_10MB.zip
 
-            return true;
+            String workingDir = @"D:\Code\Node\DCProject\Downloader";
+            String command = @"node " + workingDir + @"\utils\IsWebsiteSupported.js " + "\"" + Url + "\"";
+            string output = ExecShell(command);
+
+            return Convert.ToBoolean(output.Trim());
         }
 
         public static Tuple<String, IEnumerable<int>> GetNameAndPartSizes(string Url, int NoOfParts)
@@ -71,5 +79,26 @@ namespace Downloader
                 }
             }
         }
+
+        private static string ExecShell(string Command) {
+
+            //String workingDir = @"D:\Code\Node\DCProject\Downloader";
+            //String command = @"/C node " + workingDir + @"\utils\IsWebsiteSupported_.js " + "\"http://file-examples.com/wp-content/uploads/2017/02/zip_10MB.zip\"";
+
+            System.Diagnostics.Process p = new System.Diagnostics.Process();
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            string strCmdText;
+            strCmdText = @"/C " + Command;
+
+            // Correct way to launch a process with arguments
+            p.StartInfo.FileName = "CMD.exe";
+            p.StartInfo.Arguments = strCmdText;
+            p.Start();
+
+            string output = p.StandardOutput.ReadToEnd();
+            return output;
+        }
+
     }
 }
