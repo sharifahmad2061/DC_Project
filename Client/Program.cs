@@ -5,32 +5,46 @@ using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Collections.Generic;
 using System.Threading;
+using Newtonsoft.Json;
+
 namespace Client
 {
+    //token passing algorithm need to implemented so that anybody having the token can request
+    //data for download and the token will rotated.
+    class DataObject
+    {
+        // type => {request, response, part allocation, datasharing}
+        public string type;
+        public string data;
+        public string sender;
+        public string receiver;
+    }
     class Program
     {
         //shared for received data
         private static Queue<String> receive_queue;
         private static Queue<String> send_queue;
+        private static string nodeId;
         private static Thread receiveThread;
         private static UnicodeEncoding unicodeEncoding;
-        private static UdpClient receiver_sock;
-        private static UdpClient sender_sock;
+        private static UdpClient udpClient;
         //ctor
         Program()
         {
             receive_queue = new Queue<string>();
             send_queue = new Queue<string>();
 
+            Random random = new Random();
+            nodeId = random.Next(1000,9999).ToString();
+
             unicodeEncoding = new UnicodeEncoding();
 
-            receiver_sock = new UdpClient();
-            sender_sock = new UdpClient();
-            IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 2222);
-            receiver_sock.Connect(iPEndPoint);
-            receiver_sock.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
+            udpClient = new UdpClient();
             IPAddress iPAddress = IPAddress.Parse("232.0.0.2");
-            receiver_sock.JoinMulticastGroup(iPAddress);
+            IPEndPoint iPEndPoint = new IPEndPoint(iPAddress, 2222);
+            udpClient.Connect(iPEndPoint);
+            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
+            udpClient.JoinMulticastGroup(iPAddress);
         }
 
         //private static IPAddress ActiveIp()
@@ -50,18 +64,18 @@ namespace Client
         //    }
         //    return null;
         //}
-        public static void receive()
+        public static void Receive()
         {
             while (true)
             {
-                IPEndPoint iPEndPoint = (IPEndPoint)receiver_sock.Client.LocalEndPoint;
-                Byte[] data = receiver_sock.Receive(ref iPEndPoint);
+                IPEndPoint iPEndPoint = (IPEndPoint)udpClient.Client.LocalEndPoint;
+                Byte[] data = udpClient.Receive(ref iPEndPoint);
                 String strData = unicodeEncoding.GetString(data);
                 receive_queue.Enqueue(strData);
             }
         }
 
-        public static void send()
+        public static void Send()
         {
             while (true)
             {
@@ -74,7 +88,7 @@ namespace Client
         static void Main(string[] args)
         {
             //receive thread
-            receiveThread = new Thread(receive);
+            receiveThread = new Thread(Receive);
             receiveThread.Start();
 
             //send thread
