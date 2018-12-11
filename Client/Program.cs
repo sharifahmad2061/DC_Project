@@ -38,7 +38,9 @@ namespace Client
         private static Encoding encoding;
         // private static UnicodeEncoding unicodeEncoding;
         private static UdpClient udpClient;
-        private static IPEndPoint iPEndPoint;
+        private static IPEndPoint localEndPoint;
+        private static IPEndPoint remoteEndPoint;
+        private static IPAddress multicastAddress;
         //ctor
 
         public static IPAddress AdaptersAddress(NetworkInterfaceType networkInterfaceType)
@@ -70,41 +72,42 @@ namespace Client
             return null;
         }
 
-        public static void PrioritizeMultiCastInterface(ref UdpClient udpClient)
-        {
-                //udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, (int)IPAddress.HostToNetworkOrder(p.Index));
-                //udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, p.Index);
-        }
+        //public static void PrioritizeMultiCastInterface(ref UdpClient udpClient)
+        //{
+        //        //udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, (int)IPAddress.HostToNetworkOrder(p.Index));
+        //        //udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, p.Index);
+        //}
         
-        public static void hello()
+        public static void InitializeData()
         {
             receive_queue = new Queue<String>();
             send_queue = new Queue<String>();
 
             Random random = new Random();
             nodeId = random.Next(1000, 9999).ToString();
-
+            Console.WriteLine(nodeId);
             encoding = new UTF8Encoding();
 
             // unicodeEncoding = new UnicodeEncoding();
             IPAddress iPAddress = AdaptersAddress(NetworkInterfaceType.Wireless80211);
+            localEndPoint = new IPEndPoint(iPAddress, 4444);
+            udpClient = new UdpClient(localEndPoint);
 
-            iPEndPoint = new IPEndPoint(iPAddress, 2222);
-            udpClient = new UdpClient(iPEndPoint);
-            //JoinMulticastGroup(ref udpClient);
-            //udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
-            IPAddress multicastAddress = IPAddress.Parse("232.0.0.2");
+            multicastAddress = IPAddress.Parse("232.0.0.2");
+            remoteEndPoint = new IPEndPoint(multicastAddress, 2222);
+
             udpClient.JoinMulticastGroup(multicastAddress);
-            Console.WriteLine("everything done.");
+            udpClient.MulticastLoopback = false;
+            //Console.WriteLine("Initializations done.");
         }
 
         public static void Receive()
         {
-            //IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("232.0.0.2"),2222);
             while (true)
             {
-                Byte[] data = udpClient.Receive(ref iPEndPoint);
+                Byte[] data = udpClient.Receive(ref remoteEndPoint);
                 String strData = encoding.GetString(data);
+                Console.Write("printed from receive");
                 Console.WriteLine(strData);
                 //receive_queue.Enqueue(strData);
             }
@@ -122,27 +125,28 @@ namespace Client
         // }
         static void Main(String[] args)
         {
-            hello();
+            InitializeData();
+
             //receive thread
             receiveThread = new Thread(Receive);
             receiveThread.Start();
 
-            DataObject dataObject = new DataObject("request", "hello there", nodeId, "0000");
+            DataObject dataObject = new DataObject("request", "hello there", nodeId, "");
             String data = JsonConvert.SerializeObject(dataObject);
-            Console.WriteLine(data);
+            //Console.WriteLine(data);
             byte[] sending_data = encoding.GetBytes(data);
-            Console.WriteLine(sending_data.ToString());
-            udpClient.Send(sending_data, sending_data.Length,iPEndPoint);
+            //Console.WriteLine(sending_data.ToString());
+            udpClient.Send(sending_data, sending_data.Length,remoteEndPoint);
             //send thread
             // while (true)
             // {
-            // Byte[] data = udpClient.Receive(ref iPEndPoint);
+            // Byte[] data = udpClient.Receive(ref localEndPoint);
             // String strData = Encoding.Unicode.GetString(data);
             // Console.WriteLine(strData);
 
 
             // }
-
+            receiveThread.Join();
 
         }
     }
