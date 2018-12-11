@@ -18,8 +18,8 @@ namespace Server
         }
         static void Main(string[] args)
         {
-            Thread receive = new Thread(receiveThread);
-            receive.Start();
+            //Thread receive = new Thread(receiveThread);
+            //receive.Start();
 
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Any, 2222);
 

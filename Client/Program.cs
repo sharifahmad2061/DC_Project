@@ -14,90 +14,134 @@ namespace Client
     class DataObject
     {
         // type => {request, response, part allocation, datasharing}
-        public string type;
-        public string data;
-        public string sender;
-        public string receiver;
+        public String type;
+        public String data;
+        public String sender;
+        public String receiver;
+
+        public DataObject(String type, String data, String sender, String receiver)
+        {
+            this.type = type;
+            this.data = data;
+            this.sender = sender;
+            this.receiver = receiver;
+        }
     }
+
     class Program
     {
         //shared for received data
         private static Queue<String> receive_queue;
         private static Queue<String> send_queue;
-        private static string nodeId;
+        private static String nodeId;
         private static Thread receiveThread;
-        private static UnicodeEncoding unicodeEncoding;
+        private static Encoding encoding;
+        // private static UnicodeEncoding unicodeEncoding;
         private static UdpClient udpClient;
+        private static IPEndPoint iPEndPoint;
         //ctor
-        Program()
+
+        public static IPAddress AdaptersAddress(NetworkInterfaceType networkInterfaceType)
         {
-            receive_queue = new Queue<string>();
-            send_queue = new Queue<string>();
-
-            Random random = new Random();
-            nodeId = random.Next(1000,9999).ToString();
-
-            unicodeEncoding = new UnicodeEncoding();
-
-            udpClient = new UdpClient();
-            IPAddress iPAddress = IPAddress.Parse("232.0.0.2");
-            IPEndPoint iPEndPoint = new IPEndPoint(iPAddress, 2222);
-            udpClient.Connect(iPEndPoint);
-            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
-            udpClient.JoinMulticastGroup(iPAddress);
-        }
-
-        //private static IPAddress ActiveIp()
-        //{
-        //    foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
-        //    {
-        //        if (ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 && ni.OperationalStatus == OperationalStatus.Up)
-        //        {
-        //            foreach (UnicastIPAddressInformation unicastIPAddressInformation in ni.GetIPProperties().UnicastAddresses)
-        //            {
-        //                if (unicastIPAddressInformation.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-        //                {
-        //                    return unicastIPAddressInformation.Address;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    return null;
-        //}
-        public static void Receive()
-        {
-            while (true)
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface adapter in nics)
             {
-                IPEndPoint iPEndPoint = (IPEndPoint)udpClient.Client.LocalEndPoint;
-                Byte[] data = udpClient.Receive(ref iPEndPoint);
-                String strData = unicodeEncoding.GetString(data);
-                receive_queue.Enqueue(strData);
-            }
-        }
-
-        public static void Send()
-        {
-            while (true)
-            {
-                if (send_queue.Count >= 1)
+                if (adapter.NetworkInterfaceType != networkInterfaceType)
+                    continue;
+                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+                    continue;
+                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Tunnel)
+                    continue;
+                if (!adapter.SupportsMulticast)
+                    continue; // multicast is meaningless for this type of connection
+                if (adapter.OperationalStatus != OperationalStatus.Up)
+                    continue; // this adapter is off or not connected
+                IPv4InterfaceProperties p = adapter.GetIPProperties().GetIPv4Properties();
+                if (p == null)
+                    continue; // IPv4 is not configured on this adapter
+                foreach (UnicastIPAddressInformation ip in adapter.GetIPProperties().UnicastAddresses)
                 {
-
+                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return ip.Address;
+                    }
                 }
             }
+            return null;
         }
-        static void Main(string[] args)
+
+        public static void PrioritizeMultiCastInterface(ref UdpClient udpClient)
         {
+                //udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, (int)IPAddress.HostToNetworkOrder(p.Index));
+                //udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastInterface, p.Index);
+        }
+        
+        public static void hello()
+        {
+            receive_queue = new Queue<String>();
+            send_queue = new Queue<String>();
+
+            Random random = new Random();
+            nodeId = random.Next(1000, 9999).ToString();
+
+            encoding = new UTF8Encoding();
+
+            // unicodeEncoding = new UnicodeEncoding();
+            IPAddress iPAddress = AdaptersAddress(NetworkInterfaceType.Wireless80211);
+
+            iPEndPoint = new IPEndPoint(iPAddress, 2222);
+            udpClient = new UdpClient(iPEndPoint);
+            //JoinMulticastGroup(ref udpClient);
+            //udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.MulticastInterface, 1);
+            IPAddress multicastAddress = IPAddress.Parse("232.0.0.2");
+            udpClient.JoinMulticastGroup(multicastAddress);
+            Console.WriteLine("everything done.");
+        }
+
+        public static void Receive()
+        {
+            //IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse("232.0.0.2"),2222);
+            while (true)
+            {
+                Byte[] data = udpClient.Receive(ref iPEndPoint);
+                String strData = encoding.GetString(data);
+                Console.WriteLine(strData);
+                //receive_queue.Enqueue(strData);
+            }
+        }
+
+        // public static void Send()
+        // {
+        //     while (true)
+        //     {
+        //         if (send_queue.Count >= 1)
+        //         {
+
+        //         }
+        //     }
+        // }
+        static void Main(String[] args)
+        {
+            hello();
             //receive thread
             receiveThread = new Thread(Receive);
             receiveThread.Start();
 
+            DataObject dataObject = new DataObject("request", "hello there", nodeId, "0000");
+            String data = JsonConvert.SerializeObject(dataObject);
+            Console.WriteLine(data);
+            byte[] sending_data = encoding.GetBytes(data);
+            Console.WriteLine(sending_data.ToString());
+            udpClient.Send(sending_data, sending_data.Length,iPEndPoint);
             //send thread
-            while (true)
-            {
-                Byte[] data = udpClient.Receive(ref iPEndPoint);
-                string strData = Encoding.Unicode.GetString(data);
-                Console.WriteLine(strData);
-            }
+            // while (true)
+            // {
+            // Byte[] data = udpClient.Receive(ref iPEndPoint);
+            // String strData = Encoding.Unicode.GetString(data);
+            // Console.WriteLine(strData);
+
+
+            // }
 
 
         }
