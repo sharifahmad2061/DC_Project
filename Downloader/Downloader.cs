@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using Newtonsoft.Json;
+using System.CodeDom.Compiler;
+using System.CodeDom;
 
 namespace Downloader
 {
@@ -69,17 +72,31 @@ namespace Downloader
             }
         }
 
-        public static string JoinParts(String[] FilePartsPathsInSortedArray)
+        public static string JoinParts(String[] FilePartsPathsInSortedArray, String Destination)
         {
+            //paths can not include a quote/double-quote
             try
             {
+                String workingDir = @"D:\Code\Node\DCProject\Downloader";
 
+                string jsnPaths = JsonConvert.SerializeObject(FilePartsPathsInSortedArray);
+                string jsnString = (jsnPaths).Replace("\"", "\\\"");
+                String command = @"node " + workingDir + @"\utils\JoinFiles.js " + "\"" + jsnString + "\" \"" + (Destination) + "\"";
+                string output = ExecShell(command).Trim();
+                //var lp = JsonConvert.DeserializeObject<List<string>>(output);
+                if ("done" == output)
+                {
+                    return output;
+                }
+                else
+                {
+                    throw new Exception(output);
+                }
             }
             catch (Exception e)
             {
                 throw;
             }
-            return "";
         }
 
         private static IEnumerable<int> DistributeInteger(int total, int divider)
