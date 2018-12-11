@@ -2,11 +2,11 @@ const axios = require("axios")
 const fs = require('fs')
 const args = process.argv
 const partId = uuidv4()
+const parthPath = __dirname+"\\tmp\\"+`${partId}.tmp`;
 
 //Create TMP if doesn't exsist
-if (fs.existsSync("tmp") == false) {
-    console.log("Creating Temp Dir")
-    fs.mkdirSync("./tmp");
+if (fs.existsSync(__dirname+"\\tmp") == false) {
+    fs.mkdirSync(__dirname+"\\tmp");
 }
 
 //now download the file
@@ -19,11 +19,14 @@ axios.get(args[2], {
 
     if (206 == res.status && "content-range" in res.headers) {
         // console.log(res.headers)
-        res.data.pipe(fs.createWriteStream(`${partId}.tmp`))
+        res.data.pipe(fs.createWriteStream(parthPath))
+        console.log(parthPath)
     } else {
         throw ("File Can't be Downloaded. Please Try Again.");
     }
 
+}).catch(function(err) {
+    console.log("error");
 })
 
 function uuidv4() {

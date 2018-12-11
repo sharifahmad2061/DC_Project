@@ -45,17 +45,28 @@ namespace Downloader
             return Tuple.Create(fileName, DistributeInteger(contentLength, NoOfParts));
         }
 
-        public static string DownloadFile(int StartByte, int EndByte)
+        public static string DownloadFile(String Url, int StartByte, int EndByte)
         {
             try
             {
+                String workingDir = @"D:\Code\Node\DCProject\Downloader";
+                String command = @"node " + workingDir + @"\utils\DownloadFilePart.js " + "\"" + Url + "\" " + StartByte + " " + EndByte;
+                string output = ExecShell(command).Trim();
+
+                if (output == "error")
+                {
+                    throw new Exception(output);
+                }
+                else
+                {
+                    return output;
+                }
 
             }
             catch (Exception e)
             {
                 throw;
             }
-            return "";
         }
 
         public static string JoinParts(String[] FilePartsPathsInSortedArray)
