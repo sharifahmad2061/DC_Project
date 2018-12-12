@@ -9,11 +9,22 @@ using Newtonsoft.Json;
 
 namespace Client
 {
+
+
+    class SyncNodes
+    {
+        private static DataObject SyncRequest;
+        public static void Sync(String nodeId)
+        {
+            SyncRequest = new DataObject("sync", nodeId, nodeId, "");
+            SendData.Send(ref Globals.udpClient, ref Globals.remoteEndPoint, ref SyncRequest, ref Globals.encoding);
+        }
+    }
     //token passing algorithm need to implemented so that anybody having the token can request
     //data for download and the token will rotated.
     class DataObject
     {
-        // type => {request, response, part allocation, datasharing}
+        // type => {sync, request, response, part allocation, datasharing,leader election, leader election response,}
         public String type;
         public String data;
         public String sender;
@@ -28,19 +39,35 @@ namespace Client
         }
     }
 
+    class SendData
+    {
+        public static void Send(ref UdpClient udpClient,ref IPEndPoint iPEndPoint,ref DataObject dataObject, ref Encoding encoding)
+        {
+            String temp = JsonConvert.SerializeObject(dataObject);
+            Byte[] temp1 = encoding.GetBytes(temp);
+            udpClient.Send(temp1, temp1.Length, iPEndPoint);
+        }
+    }
+
+    class token
+    {
+        public static String tokenHolder;
+        public static DateTime tokenCreationTime;
+
+        public token(String nodeId)
+        {
+            tokenHolder = nodeId;
+            tokenCreationTime = DateTime.Now;
+        }
+        public void selectLeader()
+        {
+            DataObject = 
+        }
+    }
+
     class Program
     {
         //shared for received data
-        private static Queue<String> receive_queue;
-        private static Queue<String> send_queue;
-        private static String nodeId;
-        private static Thread receiveThread;
-        private static Encoding encoding;
-        // private static UnicodeEncoding unicodeEncoding;
-        private static UdpClient udpClient;
-        private static IPEndPoint localEndPoint;
-        private static IPEndPoint remoteEndPoint;
-        private static IPAddress multicastAddress;
         //ctor
 
         public static IPAddress AdaptersAddress(NetworkInterfaceType networkInterfaceType)
@@ -80,24 +107,7 @@ namespace Client
         
         public static void InitializeData()
         {
-            receive_queue = new Queue<String>();
-            send_queue = new Queue<String>();
 
-            Random random = new Random();
-            nodeId = random.Next(1000, 9999).ToString();
-            Console.WriteLine(nodeId);
-            encoding = new UTF8Encoding();
-
-            // unicodeEncoding = new UnicodeEncoding();
-            IPAddress iPAddress = AdaptersAddress(NetworkInterfaceType.Wireless80211);
-            localEndPoint = new IPEndPoint(iPAddress, 4444);
-            udpClient = new UdpClient(localEndPoint);
-
-            multicastAddress = IPAddress.Parse("232.0.0.2");
-            remoteEndPoint = new IPEndPoint(multicastAddress, 2222);
-
-            udpClient.JoinMulticastGroup(multicastAddress);
-            udpClient.MulticastLoopback = false;
             //Console.WriteLine("Initializations done.");
         }
 
@@ -125,7 +135,7 @@ namespace Client
         // }
         static void Main(String[] args)
         {
-            InitializeData();
+            Globals.Initialize();
 
             //receive thread
             receiveThread = new Thread(Receive);
