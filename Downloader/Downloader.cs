@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using Newtonsoft.Json;
+using System.CodeDom.Compiler;
+using System.CodeDom;
 
 namespace Downloader
 {
@@ -28,33 +31,72 @@ namespace Downloader
             int contentLength = 12345; //get contentLengthFirst
             string fileName = ""; //get fileName
 
+            try
+            {
+                String workingDir = @"D:\Code\Node\DCProject\Downloader";
+                String command = @"node " + workingDir + @"\utils\FileDetails.js " + "\"" + Url + "\"";
+                String output = ExecShell(command);
+
+                fileName = output.Split(';')[0];
+                contentLength = Convert.ToInt32(output.Split(';')[1]);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
             return Tuple.Create(fileName, DistributeInteger(contentLength, NoOfParts));
         }
 
-        public static string DownloadFile(int StartByte, int EndByte)
+        public static string DownloadFile(String Url, int StartByte, int EndByte)
         {
             try
             {
+                String workingDir = @"D:\Code\Node\DCProject\Downloader";
+                String command = @"node " + workingDir + @"\utils\DownloadFilePart.js " + "\"" + Url + "\" " + StartByte + " " + EndByte;
+                string output = ExecShell(command).Trim();
+
+                if (output == "error")
+                {
+                    throw new Exception(output);
+                }
+                else
+                {
+                    return output;
+                }
 
             }
             catch (Exception e)
             {
                 throw;
             }
-            return "";
         }
 
-        public static string JoinParts(String[] FilePartsPathsInSortedArray)
+        public static string JoinParts(String[] FilePartsPathsInSortedArray, String Destination)
         {
+            //paths can not include a quote/double-quote
             try
             {
-            
+                String workingDir = @"D:\Code\Node\DCProject\Downloader";
+
+                string jsnPaths = JsonConvert.SerializeObject(FilePartsPathsInSortedArray);
+                string jsnString = (jsnPaths).Replace("\"", "\\\"");
+                String command = @"node " + workingDir + @"\utils\JoinFiles.js " + "\"" + jsnString + "\" \"" + (Destination) + "\"";
+                string output = ExecShell(command).Trim();
+                //var lp = JsonConvert.DeserializeObject<List<string>>(output);
+                if ("done" == output)
+                {
+                    return output;
+                }
+                else
+                {
+                    throw new Exception(output);
+                }
             }
             catch (Exception e)
             {
                 throw;
             }
-            return "";
         }
 
         private static IEnumerable<int> DistributeInteger(int total, int divider)
@@ -80,7 +122,8 @@ namespace Downloader
             }
         }
 
-        private static string ExecShell(string Command) {
+        private static string ExecShell(string Command)
+        {
 
             //String workingDir = @"D:\Code\Node\DCProject\Downloader";
             //String command = @"/C node " + workingDir + @"\utils\IsWebsiteSupported_.js " + "\"http://file-examples.com/wp-content/uploads/2017/02/zip_10MB.zip\"";
