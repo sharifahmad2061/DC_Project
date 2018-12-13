@@ -12,13 +12,14 @@ namespace Client
         public static void Sync(String nodeId)
         {
             SyncRequest = new DataObject("sync", nodeId, nodeId, "");
-            SendData.Send(ref Globals.udpClient, ref Globals.remoteEndPoint, ref SyncRequest, ref Globals.encoding);
+            SendData.Send(SyncRequest);
         }
         public static void RecognizeNode(DataObject dataObject)
         {
             if (!Globals.nodes.Contains(dataObject.sender))
             {
                 Globals.nodes.Add(dataObject.sender);
+                Globals.numofnodes += 1;
             }
         }
     }

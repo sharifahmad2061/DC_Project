@@ -8,11 +8,11 @@ namespace Client
 {
     class SendData
     {
-        public static void Send(ref UdpClient udpClient, ref IPEndPoint iPEndPoint, ref DataObject dataObject, ref Encoding encoding)
+        public static void Send(DataObject dataObject)
         {
             String temp = JsonConvert.SerializeObject(dataObject);
-            Byte[] temp1 = encoding.GetBytes(temp);
-            udpClient.Send(temp1, temp1.Length, iPEndPoint);
+            Byte[] temp1 = Globals.encoding.GetBytes(temp);
+            Globals.udpClient.Send(temp1, temp1.Length, Globals.remoteEndPoint);
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Client
             encoding = new UTF8Encoding();
 
             // unicodeEncoding = new UnicodeEncoding();
-            IPAddress iPAddress = Program.AdaptersAddress(NetworkInterfaceType.Wireless80211);
+            IPAddress iPAddress = AdapterHandling.AdaptersAddress(NetworkInterfaceType.Wireless80211);
             localEndPoint = new IPEndPoint(iPAddress, 4444);
             udpClient = new UdpClient(localEndPoint);
 

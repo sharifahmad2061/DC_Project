@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Newtonsoft.Json;
 
+
 namespace Client
 {
     //token passing algorithm need to implemented so that anybody having the token can request
@@ -29,12 +30,27 @@ namespace Client
             Globals.receiveThread = new Thread(Receive.receive);
             Globals.receiveThread.Start();
 
-            DataObject dataObject = new DataObject("request", "hello there", Globals.nodeId, "");
-            String data = JsonConvert.SerializeObject(dataObject);
-            //Console.WriteLine(data);
-            byte[] sending_data = Globals.encoding.GetBytes(data);
-            //Console.WriteLine(sending_data.ToString());
-            Globals.udpClient.Send(sending_data, sending_data.Length,Globals.remoteEndPoint);
+            //Sync Nodes
+            SyncNodes.Sync(Globals.nodeId);
+
+            while (true)
+            {
+                Console.Write("Do you want to download file >> ");
+                string resp = Console.ReadLine(); //yes or no
+                if (resp == "yes")
+                {
+                    Console.Write("Enter file URL >> ");
+                    string url = Console.ReadLine();
+                    
+                }
+                else
+                {
+                    Console.WriteLine("now handling downloads for others.");
+                    break;
+                }
+            }
+            //DataObject dataObject = new DataObject("request", "hello there", Globals.nodeId, "");
+            //SendData.Send(dataObject);
             //send thread
             // while (true)
             // {

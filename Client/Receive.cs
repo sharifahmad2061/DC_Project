@@ -24,8 +24,11 @@ namespace Client
                     case "sync":
                         SyncNodes.RecognizeNode(JsonData);
                         break;
-                    case "":
-
+                    case "findtoken":
+                        SendData.Send(new DataObject("findtokenresponse",LeaderSelection.tokenHolder,"",""));
+                        break;
+                    case "findtokenresponse":
+                        LeaderSelection.HandleFindTokenResponse(JsonData);
                         break;
                     default:
                         Console.WriteLine("packet of some type else");
