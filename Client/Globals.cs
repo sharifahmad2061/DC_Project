@@ -10,11 +10,12 @@ namespace Client
 {
     public static class Globals
     {
-        public static Queue<String> receive_queue;
-        public static Queue<String> send_queue;
+        public static Queue<string> receive_queue;
+        public static Queue<string> send_queue;
 
-        public static String nodeId;
-        public static Int32 numofnodes;
+        public static string nodeId;
+        public static List<string> nodes;
+        public static int numofnodes;
 
         public static Thread receiveThread;
 
@@ -37,6 +38,7 @@ namespace Client
             Random random = new Random();
             nodeId = random.Next(1000, 9999).ToString();
             //Console.WriteLine(nodeId);
+            nodes = new List<string>();
             numofnodes = 1;
 
             encoding = new UTF8Encoding();
