@@ -8,7 +8,7 @@ namespace Client
 {
     class DataObject
     {
-        // type => {sync, request, response, partallocation, datasharing, leader election, leader electionresponse,
+        // type => {sync, syncresponse, request, response, partallocation, datasharing, leader election, leader electionresponse,
         //          findtoken, findtokenresponse, }
         public String type;
         public String data;

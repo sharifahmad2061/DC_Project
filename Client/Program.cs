@@ -6,7 +6,7 @@ using System.Net.NetworkInformation;
 using System.Collections.Generic;
 using System.Threading;
 using Newtonsoft.Json;
-
+using Downloader;
 
 namespace Client
 {
@@ -32,6 +32,7 @@ namespace Client
 
             //Sync Nodes
             SyncNodes.Sync(Globals.nodeId);
+            Thread.Sleep(1000);
 
             while (true)
             {
@@ -41,7 +42,18 @@ namespace Client
                 {
                     Console.Write("Enter file URL >> ");
                     string url = Console.ReadLine();
-                    
+                    bool iswebsiteSupported = Downloader.Downloader.IsWebsiteSupported(url);
+                    if (iswebsiteSupported)
+                    {
+                        Tuple<string, IEnumerable<int>> tuple= Downloader.Downloader.GetNameAndPartSizes(url, Globals.numofnodes);
+                        DownloadMetaData.AllocateParts(tuple.Item2);
+                        Thread.Sleep(1000);
+                        Downloader.Downloader.DownloadFile(url, DownloadMetaData.downloadrange[0], DownloadMetaData.downloadrange[1]);
+                    }
+                    else
+                    {
+
+                    }
                 }
                 else
                 {

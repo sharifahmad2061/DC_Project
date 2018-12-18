@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="AdapterHandling.cs" />
     <Compile Include="DataObject.cs" />
+    <Compile Include="DownloadMetaData.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="LeaderSelection.cs" />
     <Compile Include="Program.cs" />
@@ -66,6 +67,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Downloader\Downloader.csproj">
+      <Project>{05bc51fc-96b2-4a03-9445-cebf4b5d8a68}</Project>
+      <Name>Downloader</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

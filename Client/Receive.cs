@@ -24,11 +24,21 @@ namespace Client
                     case "sync":
                         SyncNodes.RecognizeNode(JsonData);
                         break;
+                    case "syncresponse":
+                        SyncNodes.HandleSyncResponse(JsonData);
+                        break;
                     case "findtoken":
                         SendData.Send(new DataObject("findtokenresponse",LeaderSelection.tokenHolder,"",""));
                         break;
                     case "findtokenresponse":
                         LeaderSelection.HandleFindTokenResponse(JsonData);
+                        break;
+                    case "request":
+                        DownloadMetaData.Url = JsonData.data;
+                        break;
+                    case "partallocation":
+                        if (JsonData.receiver == Globals.nodeId)
+                            DownloadMetaData.StoreRange(JsonData.data);
                         break;
                     default:
                         Console.WriteLine("packet of some type else");
