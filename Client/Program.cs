@@ -25,6 +25,7 @@ namespace Client
         static void Main(String[] args)
         {
             Globals.Initialize();
+            DownloadMetaData.Initialize();
 
             //receive thread
             Globals.receiveThread = new Thread(Receive.receive);
@@ -42,13 +43,16 @@ namespace Client
                 {
                     Console.Write("Enter file URL >> ");
                     string url = Console.ReadLine();
-                    bool iswebsiteSupported = Downloader.Downloader.IsWebsiteSupported(url);
+                    bool iswebsiteSupported  = Downloader.Downloader.IsWebsiteSupported(url);
+                    Thread.Sleep(1000);
                     if (iswebsiteSupported)
                     {
-                        Tuple<string, IEnumerable<int>> tuple= Downloader.Downloader.GetNameAndPartSizes(url, Globals.numofnodes);
+                        Console.WriteLine("file supported");
+                        Tuple<string, IEnumerable<int>> tuple= Downloader.Downloader.GetNameAndPartSizes(url, 2);
                         DownloadMetaData.AllocateParts(tuple.Item2);
                         Thread.Sleep(1000);
                         Downloader.Downloader.DownloadFile(url, DownloadMetaData.downloadrange[0], DownloadMetaData.downloadrange[1]);
+                        Console.WriteLine("file downloaded");
                     }
                     else
                     {

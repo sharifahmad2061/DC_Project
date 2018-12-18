@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
-    "concat-files": "^0.1.1"
+    "concat-files": "^0.1.1",
+    "mime-types": "^2.1.21"
   }
 }

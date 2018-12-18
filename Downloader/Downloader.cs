@@ -19,7 +19,7 @@ namespace Downloader
             //D:\Code\Node\DCProject\Downloader\utils\IsWebsiteSupported_.js
             //http://file-examples.com/wp-content/uploads/2017/02/zip_10MB.zip
 
-            String workingDir = @"C:\Users\sharifahmad\Google Drive\University Material\7th Semester\1. Distributed Computing (3+1)\project\MultiCast_Test\Downloader";
+            String workingDir = @"E:\MultiCast_Test\Downloader";
             String command = @"node " + workingDir + @"\utils\IsWebsiteSupported.js " + "\"" + Url + "\"";
             string output = ExecShell(command);
 
@@ -33,7 +33,7 @@ namespace Downloader
 
             try
             {
-                String workingDir = @"C:\Users\sharifahmad\Google Drive\University Material\7th Semester\1. Distributed Computing (3+1)\project\MultiCast_Test\Downloader";
+                String workingDir = @"E:\MultiCast_Test\Downloader";
                 String command = @"node " + workingDir + @"\utils\FileDetails.js " + "\"" + Url + "\"";
                 String output = ExecShell(command);
 
@@ -52,7 +52,7 @@ namespace Downloader
         {
             try
             {
-                String workingDir = @"C:\Users\sharifahmad\Google Drive\University Material\7th Semester\1. Distributed Computing (3+1)\project\MultiCast_Test\Downloader";
+                String workingDir = @"E:\MultiCast_Test\Downloader";
                 String command = @"node " + workingDir + @"\utils\DownloadFilePart.js " + "\"" + Url + "\" " + StartByte + " " + EndByte;
                 string output = ExecShell(command).Trim();
 
@@ -77,7 +77,7 @@ namespace Downloader
             //paths can not include a quote/double-quote
             try
             {
-                String workingDir = @"C:\Users\sharifahmad\Google Drive\University Material\7th Semester\1. Distributed Computing (3+1)\project\MultiCast_Test\Downloader";
+                String workingDir = @"E:\MultiCast_Test\Downloader";
 
                 string jsnPaths = JsonConvert.SerializeObject(FilePartsPathsInSortedArray);
                 string jsnString = (jsnPaths).Replace("\"", "\\\"");
@@ -133,7 +133,7 @@ namespace Downloader
             p.StartInfo.RedirectStandardOutput = true;
             string strCmdText;
             strCmdText = @"/C " + Command;
-
+            //@"/C " +
             // Correct way to launch a process with arguments
             p.StartInfo.FileName = "CMD.exe";
             p.StartInfo.Arguments = strCmdText;
