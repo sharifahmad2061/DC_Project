@@ -48,11 +48,16 @@ namespace Client
                     if (iswebsiteSupported)
                     {
                         Console.WriteLine("file supported");
-                        Tuple<string, IEnumerable<int>> tuple= Downloader.Downloader.GetNameAndPartSizes(url, 2);
+                        SendData.Send(new DataObject("request", url, Globals.nodeId, ""));
+                        Tuple<string, IEnumerable<int>> tuple= Downloader.Downloader.GetNameAndPartSizes(url, Globals.numofnodes);
                         DownloadMetaData.AllocateParts(tuple.Item2);
+                        DownloadMetaData.ShareParts();
                         Thread.Sleep(1000);
-                        Downloader.Downloader.DownloadFile(url, DownloadMetaData.downloadrange[0], DownloadMetaData.downloadrange[1]);
+                        Downloader.Downloader.DownloadFile(url, DownloadMetaData.downloadrange[0].Item1, DownloadMetaData.downloadrange[0].Item2);
                         Console.WriteLine("file downloaded");
+                        Thread.Sleep(1000);
+                        Console.WriteLine("starting file sharing");
+                        SendData.Send(new DataObject("datasharing", "", Globals.nodeId, ""));
                     }
                     else
                     {

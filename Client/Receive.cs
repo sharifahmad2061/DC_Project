@@ -34,11 +34,19 @@ namespace Client
                         LeaderSelection.HandleFindTokenResponse(JsonData);
                         break;
                     case "request":
+                        Console.WriteLine("file download request received");
                         DownloadMetaData.Url = JsonData.data;
                         break;
                     case "partallocation":
+                        Console.WriteLine("part allocation request received");
                         if (JsonData.receiver == Globals.nodeId)
+                        {
                             DownloadMetaData.StoreRange(JsonData.data);
+                            Downloader.Downloader.DownloadFile(DownloadMetaData.Url, DownloadMetaData.downloadrange[0].Item1, DownloadMetaData.downloadrange[0].Item2);
+                        }
+                        break;
+                    case "datasharing":
+                        Console.WriteLine("data sharing request received");
                         break;
                     default:
                         Console.WriteLine("packet of some type else");

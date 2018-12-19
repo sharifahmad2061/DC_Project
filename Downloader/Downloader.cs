@@ -58,6 +58,7 @@ namespace Downloader
 
                 if (output == "error")
                 {
+                    Console.WriteLine(output);
                     throw new Exception(output);
                 }
                 else
