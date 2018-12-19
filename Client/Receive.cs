@@ -15,16 +15,18 @@ namespace Client
             {
                 Byte[] data = Globals.udpClient.Receive(ref Globals.remoteEndPoint);
                 String strData = Globals.encoding.GetString(data);
-                Console.Write("printed from receive");
+                Console.WriteLine("printed from receive");
                 //Console.WriteLine(strData);
                 //receive_queue.Enqueue(strData);
                 DataObject JsonData = JsonConvert.DeserializeObject<DataObject>(strData);
                 switch (JsonData.type)
                 {
                     case "sync":
+                        Console.WriteLine("sync request received");
                         SyncNodes.RecognizeNode(JsonData);
                         break;
                     case "syncresponse":
+                        Console.WriteLine("sync response");
                         SyncNodes.HandleSyncResponse(JsonData);
                         break;
                     case "findtoken":

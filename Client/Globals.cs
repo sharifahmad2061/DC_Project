@@ -45,7 +45,7 @@ namespace Client
 
             // unicodeEncoding = new UnicodeEncoding();
             IPAddress iPAddress = AdapterHandling.AdaptersAddress(NetworkInterfaceType.Wireless80211);
-            localEndPoint = new IPEndPoint(iPAddress, 4444);
+            localEndPoint = new IPEndPoint(iPAddress, 2222);
             udpClient = new UdpClient(localEndPoint);
 
             multicastAddress = IPAddress.Parse("232.0.0.2");

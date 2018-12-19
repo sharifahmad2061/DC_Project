@@ -78,7 +78,7 @@ namespace Client
             // Byte[] data = udpClient.Receive(ref localEndPoint);
             // String strData = Encoding.Unicode.GetString(data);
             // Console.WriteLine(strData);
-
+            
 
             // }
             Globals.receiveThread.Join();

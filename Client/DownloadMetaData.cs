@@ -52,7 +52,7 @@ namespace Client
             for(int i= 1; i < downloadrange.Count; ++i)
             {
                 string temp = downloadrange[i].Item1 + " " + downloadrange[i].Item2;
-                partsandnodes.Add(Tuple.Create(1, Globals.nodes[i]));
+                partsandnodes.Add(Tuple.Create(i, Globals.nodes[i]));
                 DataObject dataObject = new DataObject("partallocation", temp, Globals.nodeId, Globals.nodes[i]);
                 SendData.Send(dataObject);
             }
