@@ -49,7 +49,7 @@ namespace Client
         public static void ShareParts()
         {
             partsandnodes.Add(Tuple.Create(0, Globals.nodeId));
-            for(int i= 1; i < downloadrange.Count; ++i)
+            for(int i= 1; i < downloadrange.Count; i++)
             {
                 string temp = downloadrange[i].Item1 + " " + downloadrange[i].Item2;
                 partsandnodes.Add(Tuple.Create(i, Globals.nodes[i]));

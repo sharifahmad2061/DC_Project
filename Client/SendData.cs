@@ -13,7 +13,7 @@ namespace Client
             String temp = JsonConvert.SerializeObject(dataObject);
             Byte[] temp1 = Globals.encoding.GetBytes(temp);
             Globals.udpClient.Send(temp1, temp1.Length, Globals.remoteEndPoint);
-            Console.WriteLine("data sent");
+            //Console.WriteLine("data sent");
         }
     }
 }

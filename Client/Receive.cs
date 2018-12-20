@@ -15,7 +15,7 @@ namespace Client
             {
                 Byte[] data = Globals.udpClient.Receive(ref Globals.remoteEndPoint);
                 String strData = Globals.encoding.GetString(data);
-                Console.WriteLine("printed from receive");
+                //Console.WriteLine("printed from receive");
                 //Console.WriteLine(strData);
                 //receive_queue.Enqueue(strData);
                 DataObject JsonData = JsonConvert.DeserializeObject<DataObject>(strData);
@@ -43,8 +43,10 @@ namespace Client
                         Console.WriteLine("part allocation request received");
                         if (JsonData.receiver == Globals.nodeId)
                         {
+                            Console.WriteLine("downloading file");
                             DownloadMetaData.StoreRange(JsonData.data);
                             Downloader.Downloader.DownloadFile(DownloadMetaData.Url, DownloadMetaData.downloadrange[0].Item1, DownloadMetaData.downloadrange[0].Item2);
+                            Console.WriteLine("file downloaded");
                         }
                         break;
                     case "datasharing":

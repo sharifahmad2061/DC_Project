@@ -39,6 +39,7 @@ namespace Client
             nodeId = random.Next(1000, 9999).ToString();
             //Console.WriteLine(nodeId);
             nodes = new List<string>();
+            nodes.Add(nodeId);
             numofnodes = 1;
 
             encoding = new UTF8Encoding();

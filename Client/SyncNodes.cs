@@ -29,6 +29,8 @@ namespace Client
         }
         public static void HandleSyncResponse(DataObject dataObject)
         {
+            Console.WriteLine("handle sync response");
+            Console.WriteLine(dataObject.data);
             if (dataObject.receiver != Globals.nodeId)
                 return;
             else
@@ -38,7 +40,10 @@ namespace Client
                 foreach(string s in nodes)
                 {
                     if (!Globals.nodes.Contains(s))
+                    {
                         Globals.nodes.Add(s);
+                        Globals.numofnodes += 1;
+                    }
                 }
             }
         }
