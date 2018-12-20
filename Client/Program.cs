@@ -53,7 +53,7 @@ namespace Client
                         DownloadMetaData.AllocateParts(tuple.Item2);
                         DownloadMetaData.ShareParts();
                         Thread.Sleep(1000);
-                        Downloader.Downloader.DownloadFile(url, DownloadMetaData.downloadrange[0].Item1, DownloadMetaData.downloadrange[0].Item2);
+                        string filename = Downloader.Downloader.DownloadFile(url, DownloadMetaData.downloadrange[0].Item1, DownloadMetaData.downloadrange[0].Item2);
                         Console.WriteLine("file downloaded");
                         Thread.Sleep(1000);
                         Console.WriteLine("starting file sharing");

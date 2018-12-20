@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ namespace Client
 {
     class Receive
     {
+        public static string localfilename = "";
         public static void receive()
         {
             while (true)
@@ -45,12 +47,20 @@ namespace Client
                         {
                             Console.WriteLine("downloading file");
                             DownloadMetaData.StoreRange(JsonData.data);
-                            Downloader.Downloader.DownloadFile(DownloadMetaData.Url, DownloadMetaData.downloadrange[0].Item1, DownloadMetaData.downloadrange[0].Item2);
+                            localfilename = Downloader.Downloader.DownloadFile(DownloadMetaData.Url, DownloadMetaData.downloadrange[0].Item1, DownloadMetaData.downloadrange[0].Item2);
                             Console.WriteLine("file downloaded");
                         }
                         break;
                     case "datasharing":
                         Console.WriteLine("data sharing request received");
+                        SendData.Send(new DataObject("filesending","",Globals.nodeId,JsonData.sender));
+                        Console.WriteLine(localfilename);
+                        Globals.udpClient.Client.SendFile(localfilename);
+                        break;
+                    case "filesending":
+                        Byte[] file_data = Globals.udpClient.Receive(ref Globals.remoteEndPoint);
+                        var fs = new FileStream("file1.tmp", FileMode.Create, FileAccess.Write);
+                        fs.Write(file_data, 0, file_data.Length);
                         break;
                     default:
                         Console.WriteLine("packet of some type else");
