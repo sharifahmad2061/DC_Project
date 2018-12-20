@@ -5,11 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using LiteNetLib.Utils;
+using LiteNetLib;
 
 namespace Client
 {
     class Receive
     {
+        public static EventBasedNetListener listener = new EventBasedNetListener();
+        public static NetManager client = new NetManager(listener,"");
+
         public static string localfilename = "";
         public static void receive()
         {
@@ -52,6 +57,13 @@ namespace Client
                         }
                         break;
                     case "datasharing":
+                        client.Start();
+                        client.Connect(Globals.multicastAddress.ToString(), 2222);
+                        listener.NetworkReceiveEvent += (fromPeer, dataReader) =>
+                        {
+                            Console.WriteLine("We got: {0}", dataReader.GetString(100));
+                            dataReader.Clear();
+                        };
                         Console.WriteLine("data sharing request received");
                         SendData.Send(new DataObject("filesending","",Globals.nodeId,JsonData.sender));
                         Console.WriteLine(localfilename);
@@ -67,6 +79,11 @@ namespace Client
                         break;
                 }
             }
+        }
+
+        private static void Listener_NetworkReceiveEvent(NetPeer peer, NetDataReader reader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

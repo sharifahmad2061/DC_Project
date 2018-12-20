@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using LiteNetLib;
 
 namespace Client
 {
@@ -23,10 +24,12 @@ namespace Client
 
         public static UdpClient udpClient;
 
+
         public static IPEndPoint localEndPoint;
         public static IPEndPoint remoteEndPoint;
 
-        private static IPAddress multicastAddress;
+        public static IPAddress multicastAddress;
+        public static IPAddress localAddress;
 
         private static bool token;
 
@@ -45,8 +48,8 @@ namespace Client
             encoding = new UTF8Encoding();
 
             // unicodeEncoding = new UnicodeEncoding();
-            IPAddress iPAddress = AdapterHandling.AdaptersAddress(NetworkInterfaceType.Wireless80211);
-            localEndPoint = new IPEndPoint(iPAddress, 2222);
+            localAddress = AdapterHandling.AdaptersAddress(NetworkInterfaceType.Wireless80211);
+            localEndPoint = new IPEndPoint(localAddress, 2222);
             udpClient = new UdpClient(localEndPoint);
 
             multicastAddress = IPAddress.Parse("232.0.0.2");
